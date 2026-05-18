@@ -1,0 +1,35 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+context: |
+  Tech stack: Java 17, Kotlin, Spring Boot
+  API conventions: RESTful, JSON responses
+  Testing: junit, unit tests
+  Description: 這是一個後端 POC 專案，以 Java 實作用戶註冊、登入、修改基本資料、註銷(刪除)帳戶等操作，
+    主要以實作 RESTful API 為主，並會在功能完成後逐步轉換為 Kotlin。
+  Note: 在開始撰寫 proposal.md 前，先將設計或實作上可能遇到的問題提出來供用戶決策。
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Include rollback plan
+    - Identify affected teams
+  specs:
+    - Use Given/When/Then format for scenarios
+  design:
+    - Include sequence diagrams for complex flows
