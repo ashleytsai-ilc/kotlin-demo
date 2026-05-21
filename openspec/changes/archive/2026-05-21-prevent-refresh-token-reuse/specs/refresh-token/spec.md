@@ -1,9 +1,5 @@
-# refresh-token Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by syncing change add-refresh-token-mechanism. Update Purpose after archive.
-
-## Requirements
 ### Requirement: Refresh access token
 The system SHALL provide a RESTful API for renewing tokens with a valid refresh token, and SHALL consume the submitted refresh token after a successful refresh.
 
@@ -101,15 +97,3 @@ The system SHALL limit refresh token revocation to explicitly submitted refresh 
 - **GIVEN** a client refreshes tokens successfully
 - **WHEN** the client submits the newly issued refresh token before it expires
 - **THEN** the system SHALL evaluate the newly issued refresh token as valid unless another validation rule rejects it
-
-### Requirement: Keep refresh independent from access token authentication
-The system SHALL use only the submitted `refresh_token` as the credential for the refresh endpoint.
-
-#### Scenario: Authorization header does not block refresh
-- **GIVEN** a client has a valid refresh token
-- **AND** the refresh request includes an expired bearer access token in the Authorization header
-- **WHEN** the client submits `POST /api/users/tokens/refresh`
-- **THEN** the system SHALL ignore the Authorization header for refresh authentication
-- **THEN** the system SHALL return `200 OK`
-- **THEN** the response SHALL include `access_token`
-- **THEN** the response SHALL include `refresh_token`

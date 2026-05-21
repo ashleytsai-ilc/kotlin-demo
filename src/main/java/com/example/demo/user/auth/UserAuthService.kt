@@ -116,28 +116,35 @@ class UserAuthService(
         revokedTokenRecorder.record(refreshClaims)
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun refresh(request: RefreshTokenRequest): TokenPairResponse {
         val refreshToken =
             trimToNull(request.refreshToken)
                 ?: throw invalidRefreshToken()
 
-        val userId =
+        val refreshClaims =
             try {
-                jwtService.validateRefreshToken(refreshToken) ?: throw invalidRefreshToken()
+                jwtService.validateRefreshTokenClaims(refreshToken)
             } catch (ex: JwtException) {
                 throw invalidRefreshToken()
             }
+        val userId = refreshClaims.subject ?: throw invalidRefreshToken()
 
         val user =
             userRepository
                 .findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow { invalidRefreshToken() }
         val id = checkNotNull(user.id)
+        val accessToken = jwtService.issueAccessToken(id)
+        val newRefreshToken = jwtService.issueRefreshToken(id)
+
+        if (!revokedTokenRecorder.consumeForRefresh(refreshClaims)) {
+            throw invalidRefreshToken()
+        }
 
         return TokenPairResponse(
-            jwtService.issueAccessToken(id),
-            jwtService.issueRefreshToken(id),
+            accessToken,
+            newRefreshToken,
         )
     }
 
