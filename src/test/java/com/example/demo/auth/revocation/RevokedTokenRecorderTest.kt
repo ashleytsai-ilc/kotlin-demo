@@ -70,6 +70,25 @@ internal class RevokedTokenRecorderTest @Autowired constructor(
         assertThat(revokedTokenChecker.isRevoked(OUTER_TRANSACTION_TOKEN_ID)).isTrue()
     }
 
+    @Test
+    fun consumeForRefreshRejectsDuplicateTokenId() {
+        val claims = claims(REFRESH_TOKEN_ID, JwtTokenType.REFRESH, Instant.now().plus(TOKEN_LIFETIME))
+
+        val firstConsumed =
+            transactionTemplate.execute {
+                revokedTokenRecorder.consumeForRefresh(claims)
+            }
+        val secondConsumed =
+            transactionTemplate.execute {
+                revokedTokenRecorder.consumeForRefresh(claims)
+            }
+
+        assertThat(firstConsumed).isTrue()
+        assertThat(secondConsumed).isFalse()
+        assertThat(revokedTokenRepository.count()).isEqualTo(EXPECTED_SINGLE_REVOCATION_COUNT)
+        assertThat(revokedTokenChecker.isRevoked(REFRESH_TOKEN_ID)).isTrue()
+    }
+
     private fun claims(tokenId: String, tokenType: JwtTokenType, expiresAt: Instant): JwtTokenClaims {
         return JwtTokenClaims(tokenId, USER_ID, tokenType, Instant.now(), expiresAt)
     }

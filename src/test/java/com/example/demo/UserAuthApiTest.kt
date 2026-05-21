@@ -319,18 +319,22 @@ class UserAuthApiTest @Autowired constructor(
         val originalRefreshToken = loginResponse.get("refresh_token").asString()
 
         val refreshResponse = helper.refresh(originalRefreshToken)
+        val refreshedRefreshToken = refreshResponse.get("refresh_token").asString()
 
         assertThat(refreshResponse.get("access_token").asString()).isNotBlank()
-        assertThat(refreshResponse.get("refresh_token").asString()).isNotBlank()
+        assertThat(refreshedRefreshToken).isNotBlank()
         assertThat(jwtService.tokenId(refreshResponse.get("access_token").asString())).isNotBlank()
-        assertThat(jwtService.tokenId(refreshResponse.get("refresh_token").asString())).isNotBlank()
+        assertThat(jwtService.tokenId(refreshedRefreshToken)).isNotBlank()
+        assertThat(revokedTokenRepository.existsById(jwtService.tokenId(originalRefreshToken))).isTrue()
         assertThat(refreshResponse.has("id")).isFalse()
         assertThat(refreshResponse.has("username")).isFalse()
         assertThat(refreshResponse.has("nickname")).isFalse()
         assertThat(refreshResponse.has("created_at")).isFalse()
         assertThat(refreshResponse.has("updated_at")).isFalse()
 
-        val secondRefreshResponse = helper.refresh(originalRefreshToken)
+        helper.assertInvalidRefreshToken(helper.refreshJson(originalRefreshToken))
+
+        val secondRefreshResponse = helper.refresh(refreshedRefreshToken)
         assertThat(secondRefreshResponse.get("access_token").asString()).isNotBlank()
         assertThat(secondRefreshResponse.get("refresh_token").asString()).isNotBlank()
     }
