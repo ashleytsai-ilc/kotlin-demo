@@ -1,12 +1,12 @@
-package com.example.demo.poc.inspection.dto;
+package com.example.demo.poc.inspection.dto
 
-import java.time.Instant;
+import java.time.Instant
 
-public record PocRevokedTokenInspectionResponse(
-        String tokenId,
-        String userId,
-        String tokenType,
-        Instant expiresAt,
-        Instant revokedAt
-) {
-}
+@JvmRecord
+data class PocRevokedTokenInspectionResponse(
+    val tokenId: String,
+    val userId: String,
+    val tokenType: String,
+    val expiresAt: Instant,
+    val revokedAt: Instant
+)

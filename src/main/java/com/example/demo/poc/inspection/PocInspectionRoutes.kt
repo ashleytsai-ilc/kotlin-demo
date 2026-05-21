@@ -1,13 +1,9 @@
-package com.example.demo.poc.inspection;
+package com.example.demo.poc.inspection
 
-public final class PocInspectionRoutes {
-
-    public static final String BASE_PATH = "/api/poc";
-    public static final String USERS_ROUTE = "/users";
-    public static final String REVOKED_TOKENS_ROUTE = "/revoked-tokens";
-    public static final String USERS_PATH = BASE_PATH + USERS_ROUTE;
-    public static final String REVOKED_TOKENS_PATH = BASE_PATH + REVOKED_TOKENS_ROUTE;
-
-    private PocInspectionRoutes() {
-    }
+object PocInspectionRoutes {
+    const val BASE_PATH: String = "/api/poc"
+    const val USERS_ROUTE: String = "/users"
+    const val REVOKED_TOKENS_ROUTE: String = "/revoked-tokens"
+    const val USERS_PATH: String = BASE_PATH + USERS_ROUTE
+    const val REVOKED_TOKENS_PATH: String = BASE_PATH + REVOKED_TOKENS_ROUTE
 }

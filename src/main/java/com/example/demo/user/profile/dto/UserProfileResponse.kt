@@ -1,19 +1,17 @@
-package com.example.demo.user.profile.dto;
+package com.example.demo.user.profile.dto
 
-import java.time.Instant;
+import java.time.Instant
 
-public record UserProfileResponse(
-        String id,
-        String username,
-        String nickname,
-        Instant createdAt,
-        Instant updatedAt
+class UserProfileResponse(
+    val id: String,
+    val username: String,
+    nickname: String?,
+    val createdAt: Instant,
+    val updatedAt: Instant,
 ) {
-    private static final String EMPTY_NICKNAME = "";
+    val nickname: String = nickname ?: EMPTY_NICKNAME
 
-    public UserProfileResponse {
-        if (nickname == null) {
-            nickname = EMPTY_NICKNAME;
-        }
+    companion object {
+        private const val EMPTY_NICKNAME = ""
     }
 }

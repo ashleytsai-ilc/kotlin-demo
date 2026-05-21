@@ -1,6 +1,6 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-public enum ApiErrorKey {
+enum class ApiErrorKey {
     REGISTRATION_VALIDATION,
     USER_PROFILE_VALIDATION,
     INVALID_JSON,

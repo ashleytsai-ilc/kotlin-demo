@@ -1,8 +1,9 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-public record ErrorDetail(String field, String message) {
-
-    public ErrorDetail(ErrorField field, String message) {
-        this(field.value(), message);
-    }
+@JvmRecord
+data class ErrorDetail(
+    val field: String,
+    val message: String,
+) {
+    constructor(field: ErrorField, message: String) : this(field.value(), message)
 }

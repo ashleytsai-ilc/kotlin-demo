@@ -1,15 +1,11 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-public final class Strings {
-
-    private Strings() {
-    }
-
-    public static String trimToNull(String value) {
+object Strings {
+    @JvmStatic
+    fun trimToNull(value: String?): String? {
         if (value == null) {
-            return null;
+            return null
         }
-        String trimmed = value.trim();
-        return trimmed.isEmpty() ? null : trimmed;
+        return value.trim { it <= ' ' }.ifEmpty { null }
     }
 }

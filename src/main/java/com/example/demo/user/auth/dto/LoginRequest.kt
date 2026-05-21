@@ -1,4 +1,7 @@
-package com.example.demo.user.auth.dto;
+package com.example.demo.user.auth.dto
 
-public record LoginRequest(String username, String password) {
-}
+@JvmRecord
+data class LoginRequest(
+    val username: String?,
+    val password: String?,
+)

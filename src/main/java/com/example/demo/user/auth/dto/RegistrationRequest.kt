@@ -1,4 +1,8 @@
-package com.example.demo.user.auth.dto;
+package com.example.demo.user.auth.dto
 
-public record RegistrationRequest(String username, String nickname, String password) {
-}
+@JvmRecord
+data class RegistrationRequest(
+    val username: String?,
+    val nickname: String?,
+    val password: String?,
+)

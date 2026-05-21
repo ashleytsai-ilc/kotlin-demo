@@ -1,20 +1,20 @@
-package com.example.demo.user.account;
+package com.example.demo.user.account
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+import java.util.Optional
 
-import java.util.Optional;
+@Repository
+interface UserRepository : JpaRepository<UserAccount, String> {
+    fun findByUsername(username: String?): Optional<UserAccount>
 
-public interface UserRepository extends JpaRepository<UserAccount, String> {
+    fun findByUsernameAndDeletedAtIsNull(username: String?): Optional<UserAccount>
 
-    Optional<UserAccount> findByUsername(String username);
+    fun findByIdAndDeletedAtIsNull(id: String?): Optional<UserAccount>
 
-    Optional<UserAccount> findByUsernameAndDeletedAtIsNull(String username);
+    fun findByActiveNicknameKey(activeNicknameKey: String?): Optional<UserAccount>
 
-    Optional<UserAccount> findByIdAndDeletedAtIsNull(String id);
+    fun existsByActiveUsernameKey(activeUsernameKey: String?): Boolean
 
-    Optional<UserAccount> findByActiveNicknameKey(String activeNicknameKey);
-
-    boolean existsByActiveUsernameKey(String activeUsernameKey);
-
-    boolean existsByActiveNicknameKey(String activeNicknameKey);
+    fun existsByActiveNicknameKey(activeNicknameKey: String?): Boolean
 }

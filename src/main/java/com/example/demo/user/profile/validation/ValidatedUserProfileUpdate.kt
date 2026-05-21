@@ -1,4 +1,6 @@
-package com.example.demo.user.profile.validation;
+package com.example.demo.user.profile.validation
 
-public record ValidatedUserProfileUpdate(String nickname) {
-}
+@JvmRecord
+data class ValidatedUserProfileUpdate(
+    val nickname: String?,
+)

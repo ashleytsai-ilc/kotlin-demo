@@ -1,4 +1,7 @@
-package com.example.demo.user.account.deletion.dto;
+package com.example.demo.user.account.deletion.dto
 
-public record AccountDeletionRequest(String password, String refreshToken) {
-}
+@JvmRecord
+data class AccountDeletionRequest(
+    val password: String?,
+    val refreshToken: String?,
+)

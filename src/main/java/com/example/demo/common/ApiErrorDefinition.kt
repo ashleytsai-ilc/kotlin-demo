@@ -1,4 +1,7 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-record ApiErrorDefinition(String code, String message) {
-}
+@JvmRecord
+internal data class ApiErrorDefinition(
+    val code: String,
+    val message: String,
+)

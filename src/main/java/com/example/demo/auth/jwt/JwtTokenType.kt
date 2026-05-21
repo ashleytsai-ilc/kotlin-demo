@@ -1,21 +1,15 @@
-package com.example.demo.auth.jwt;
+package com.example.demo.auth.jwt
 
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.JwtClaimNames
 
-public enum JwtTokenType {
+enum class JwtTokenType(private val value: String) {
     ACCESS("access"),
     REFRESH("refresh");
 
-    public static final String CLAIM = "token_type";
-    public static final String ID_CLAIM = JwtClaimNames.JTI;
+    fun value(): String = value
 
-    private final String value;
-
-    JwtTokenType(String value) {
-        this.value = value;
-    }
-
-    public String value() {
-        return value;
+    companion object {
+        const val CLAIM: String = "token_type"
+        const val ID_CLAIM: String = JwtClaimNames.JTI
     }
 }

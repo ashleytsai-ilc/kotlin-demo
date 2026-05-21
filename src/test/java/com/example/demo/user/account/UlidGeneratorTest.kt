@@ -1,28 +1,25 @@
-package com.example.demo.user.account;
+package com.example.demo.user.account
 
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class UlidGeneratorTest {
-
-    private static final int GENERATED_ID_COUNT = 10;
-    private static final String ULID_PATTERN = "[0-9A-HJKMNP-TV-Z]{26}";
-
+internal class UlidGeneratorTest {
     @Test
-    void generatesMonotonicallyOrderedUlids() {
-        UlidGenerator generator = new UlidGenerator();
+    fun generatesMonotonicallyOrderedUlids() {
+        val generator = UlidGenerator()
 
-        List<String> ids = IntStream.range(0, GENERATED_ID_COUNT)
-                .mapToObj(index -> generator.next())
-                .toList();
+        val ids = List(GENERATED_ID_COUNT) {
+            generator.next()
+        }
 
         assertThat(ids)
-                .allMatch(id -> id.matches(ULID_PATTERN))
-                .doesNotHaveDuplicates()
-                .isSorted();
+            .allMatch { id -> ULID_PATTERN.matches(id) }
+            .doesNotHaveDuplicates()
+            .isSorted()
+    }
+
+    companion object {
+        private const val GENERATED_ID_COUNT = 10
+        private val ULID_PATTERN = Regex("[0-9A-HJKMNP-TV-Z]{26}")
     }
 }

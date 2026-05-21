@@ -1,117 +1,91 @@
-package com.example.demo.auth.jwt;
+package com.example.demo.auth.jwt
 
-import com.example.demo.auth.revocation.RevokedTokenChecker;
-import org.springframework.stereotype.Service;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.UUID;
+import com.example.demo.auth.revocation.RevokedTokenChecker
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm
+import org.springframework.security.oauth2.jwt.JwsHeader
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.jwt.JwtClaimsSet
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtEncoder
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters
+import org.springframework.security.oauth2.jwt.JwtException
+import org.springframework.stereotype.Service
+import java.time.Duration
+import java.time.Instant
+import java.util.UUID
 
 @Service
-public class JwtService {
+class JwtService(
+    private val properties: JwtProperties,
+    private val jwtEncoder: JwtEncoder,
+    private val jwtDecoder: JwtDecoder,
+    private val revokedTokenChecker: RevokedTokenChecker,
+) {
+    fun issueAccessToken(subject: String): String = issueToken(subject, JwtTokenType.ACCESS, properties.accessTokenExpiration)
 
-    private final JwtProperties properties;
-    private final JwtEncoder jwtEncoder;
-    private final JwtDecoder jwtDecoder;
-    private final RevokedTokenChecker revokedTokenChecker;
+    fun issueRefreshToken(subject: String): String = issueToken(subject, JwtTokenType.REFRESH, properties.refreshTokenExpiration)
 
-    public JwtService(
-            JwtProperties properties,
-            JwtEncoder jwtEncoder,
-            JwtDecoder jwtDecoder,
-            RevokedTokenChecker revokedTokenChecker
-    ) {
-        this.properties = properties;
-        this.jwtEncoder = jwtEncoder;
-        this.jwtDecoder = jwtDecoder;
-        this.revokedTokenChecker = revokedTokenChecker;
-    }
-
-    public String issueAccessToken(String subject) {
-        return issueToken(subject, JwtTokenType.ACCESS, properties.accessTokenExpiration());
-    }
-
-    public String issueRefreshToken(String subject) {
-        return issueToken(subject, JwtTokenType.REFRESH, properties.refreshTokenExpiration());
-    }
-
-    private String issueToken(String subject, JwtTokenType tokenType, Duration expiration) {
-        Instant now = Instant.now();
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+    private fun issueToken(
+        subject: String,
+        tokenType: JwtTokenType,
+        expiration: Duration,
+    ): String {
+        val now = Instant.now()
+        val claims =
+            JwtClaimsSet
+                .builder()
                 .subject(subject)
                 .issuedAt(now)
                 .expiresAt(now.plus(expiration))
                 .id(UUID.randomUUID().toString())
                 .claim(JwtTokenType.CLAIM, tokenType.value())
-                .build();
-        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+                .build()
+        val header = JwsHeader.with(MacAlgorithm.HS256).build()
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue
     }
 
-    public String validateRefreshToken(String token) {
-        JwtTokenClaims claims = validateRefreshTokenClaims(token);
-        return claims.subject();
-    }
+    fun validateRefreshToken(token: String?): String? = validateRefreshTokenClaims(token).subject
 
-    public JwtTokenClaims validateRefreshTokenClaims(String token) {
-        JwtTokenClaims claims = validateToken(token, JwtTokenType.REFRESH);
-        if (revokedTokenChecker.isRevoked(claims.tokenId())) {
-            throw new JwtException("JWT has been revoked.");
+    fun validateRefreshTokenClaims(token: String?): JwtTokenClaims {
+        val claims = validateToken(token, JwtTokenType.REFRESH)
+        if (revokedTokenChecker.isRevoked(claims.tokenId)) {
+            throw JwtException("JWT has been revoked.")
         }
-        return claims;
+        return claims
     }
 
-    public String subject(String token) {
-        return decode(token).getSubject();
-    }
+    fun subject(token: String?): String? = decode(token).subject
 
-    public String tokenType(String token) {
-        return tokenType(decode(token));
-    }
+    fun tokenType(token: String?): String? = tokenType(decode(token))
 
-    public String tokenId(String token) {
-        return decode(token).getId();
-    }
+    fun tokenId(token: String?): String = decode(token).id
 
-    public Instant issuedAt(String token) {
-        return decode(token).getIssuedAt();
-    }
+    fun issuedAt(token: String?): Instant? = decode(token).issuedAt
 
-    public Instant expiresAt(String token) {
-        return decode(token).getExpiresAt();
-    }
+    fun expiresAt(token: String?): Instant? = decode(token).expiresAt
 
-    private Jwt decode(String token) {
-        return jwtDecoder.decode(token);
-    }
+    private fun decode(token: String?): Jwt = jwtDecoder.decode(token)
 
-    public JwtTokenClaims validateToken(String token, JwtTokenType expectedType) {
-        Jwt jwt = decode(token);
-        if (!expectedType.value().equals(tokenType(jwt))) {
-            throw new JwtException("JWT token type is invalid.");
+    fun validateToken(
+        token: String?,
+        expectedType: JwtTokenType,
+    ): JwtTokenClaims {
+        val jwt = decode(token)
+        if (expectedType.value() != tokenType(jwt)) {
+            throw JwtException("JWT token type is invalid.")
         }
-        String tokenId = jwt.getId();
+        val tokenId = jwt.id
         if (tokenId == null || tokenId.isBlank()) {
-            throw new JwtException("JWT token id is missing.");
+            throw JwtException("JWT token id is missing.")
         }
-        return new JwtTokenClaims(
-                tokenId,
-                jwt.getSubject(),
-                expectedType,
-                jwt.getIssuedAt(),
-                jwt.getExpiresAt()
-        );
+        return JwtTokenClaims(
+            tokenId,
+            jwt.subject,
+            expectedType,
+            jwt.issuedAt,
+            jwt.expiresAt,
+        )
     }
 
-    private String tokenType(Jwt jwt) {
-        return jwt.getClaimAsString(JwtTokenType.CLAIM);
-    }
+    private fun tokenType(jwt: Jwt): String? = jwt.getClaimAsString(JwtTokenType.CLAIM)
 }

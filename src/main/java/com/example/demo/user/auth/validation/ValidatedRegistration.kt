@@ -1,4 +1,8 @@
-package com.example.demo.user.auth.validation;
+package com.example.demo.user.auth.validation
 
-public record ValidatedRegistration(String username, String nickname, String password) {
-}
+@JvmRecord
+data class ValidatedRegistration(
+    val username: String?,
+    val nickname: String?,
+    val password: String?,
+)

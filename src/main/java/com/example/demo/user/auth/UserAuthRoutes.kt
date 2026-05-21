@@ -1,17 +1,13 @@
-package com.example.demo.user.auth;
+package com.example.demo.user.auth
 
-public final class UserAuthRoutes {
-
-    public static final String BASE_PATH = "/api/users";
-    public static final String REGISTER_ROUTE = "/register";
-    public static final String LOGIN_ROUTE = "/login";
-    public static final String LOGOUT_ROUTE = "/logout";
-    public static final String REFRESH_ROUTE = "/tokens/refresh";
-    public static final String REGISTER_PATH = BASE_PATH + REGISTER_ROUTE;
-    public static final String LOGIN_PATH = BASE_PATH + LOGIN_ROUTE;
-    public static final String LOGOUT_PATH = BASE_PATH + LOGOUT_ROUTE;
-    public static final String REFRESH_PATH = BASE_PATH + REFRESH_ROUTE;
-
-    private UserAuthRoutes() {
-    }
+object UserAuthRoutes {
+    const val BASE_PATH: String = "/api/users"
+    const val REGISTER_ROUTE: String = "/register"
+    const val LOGIN_ROUTE: String = "/login"
+    const val LOGOUT_ROUTE: String = "/logout"
+    const val REFRESH_ROUTE: String = "/tokens/refresh"
+    const val REGISTER_PATH: String = BASE_PATH + REGISTER_ROUTE
+    const val LOGIN_PATH: String = BASE_PATH + LOGIN_ROUTE
+    const val LOGOUT_PATH: String = BASE_PATH + LOGOUT_ROUTE
+    const val REFRESH_PATH: String = BASE_PATH + REFRESH_ROUTE
 }

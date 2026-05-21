@@ -1,39 +1,35 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
-import java.util.List;
+object ApiExceptions {
+    @JvmStatic
+    fun conflict(
+        key: ApiErrorKey,
+        field: ErrorField,
+    ): ApiException =
+        ApiErrorCatalog.exception(
+            HttpStatus.CONFLICT,
+            key,
+            listOf(ErrorDetail(field, ApiErrorCatalog.message(key))),
+        )
 
-public final class ApiExceptions {
+    @JvmStatic
+    fun invalidCredentials(): ApiException = unauthorizedWithDetail(ApiErrorKey.INVALID_CREDENTIALS, ErrorField.CREDENTIALS)
 
-    private ApiExceptions() {
-    }
+    @JvmStatic
+    fun invalidRefreshToken(): ApiException = unauthorizedWithDetail(ApiErrorKey.INVALID_REFRESH_TOKEN, ErrorField.REFRESH_TOKEN)
 
-    public static ApiException conflict(ApiErrorKey key, ErrorField field) {
-        return ApiErrorCatalog.exception(
-                HttpStatus.CONFLICT,
-                key,
-                List.of(new ErrorDetail(field, ApiErrorCatalog.message(key)))
-        );
-    }
+    @JvmStatic
+    fun unauthorized(): ApiException = unauthorizedWithDetail(ApiErrorKey.UNAUTHORIZED, ErrorField.AUTHORIZATION)
 
-    public static ApiException invalidCredentials() {
-        return unauthorizedWithDetail(ApiErrorKey.INVALID_CREDENTIALS, ErrorField.CREDENTIALS);
-    }
-
-    public static ApiException invalidRefreshToken() {
-        return unauthorizedWithDetail(ApiErrorKey.INVALID_REFRESH_TOKEN, ErrorField.REFRESH_TOKEN);
-    }
-
-    public static ApiException unauthorized() {
-        return unauthorizedWithDetail(ApiErrorKey.UNAUTHORIZED, ErrorField.AUTHORIZATION);
-    }
-
-    private static ApiException unauthorizedWithDetail(ApiErrorKey key, ErrorField field) {
-        return ApiErrorCatalog.exception(
-                HttpStatus.UNAUTHORIZED,
-                key,
-                List.of(new ErrorDetail(field, ApiErrorCatalog.message(key)))
-        );
-    }
+    private fun unauthorizedWithDetail(
+        key: ApiErrorKey,
+        field: ErrorField,
+    ): ApiException =
+        ApiErrorCatalog.exception(
+            HttpStatus.UNAUTHORIZED,
+            key,
+            listOf(ErrorDetail(field, ApiErrorCatalog.message(key))),
+        )
 }

@@ -1,12 +1,12 @@
-package com.example.demo.auth.jwt;
+package com.example.demo.auth.jwt
 
-import java.time.Instant;
+import java.time.Instant
 
-public record JwtTokenClaims(
-        String tokenId,
-        String subject,
-        JwtTokenType tokenType,
-        Instant issuedAt,
-        Instant expiresAt
-) {
-}
+@JvmRecord
+data class JwtTokenClaims(
+    val tokenId: String,
+    val subject: String?,
+    val tokenType: JwtTokenType,
+    val issuedAt: Instant?,
+    val expiresAt: Instant?,
+)

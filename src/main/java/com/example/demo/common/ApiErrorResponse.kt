@@ -1,4 +1,8 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-public record ApiErrorResponse(String code, String message, Object details) {
-}
+@JvmRecord
+data class ApiErrorResponse(
+    val code: String,
+    val message: String,
+    val details: Any?,
+)

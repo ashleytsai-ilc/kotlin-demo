@@ -1,4 +1,6 @@
-package com.example.demo.user.auth.dto;
+package com.example.demo.user.auth.dto
 
-public record RefreshTokenRequest(String refreshToken) {
-}
+@JvmRecord
+data class RefreshTokenRequest(
+    val refreshToken: String?,
+)

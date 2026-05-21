@@ -1,4 +1,6 @@
-package com.example.demo.user.auth.dto;
+package com.example.demo.user.auth.dto
 
-public record LogoutRequest(String refreshToken) {
-}
+@JvmRecord
+data class LogoutRequest(
+    val refreshToken: String?,
+)

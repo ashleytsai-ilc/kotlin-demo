@@ -1,13 +1,9 @@
-package com.example.demo.user.account.deletion;
+package com.example.demo.user.account.deletion
 
-import com.example.demo.user.auth.UserAuthRoutes;
-import com.example.demo.user.profile.UserProfileRoutes;
+import com.example.demo.user.auth.UserAuthRoutes
+import com.example.demo.user.profile.UserProfileRoutes
 
-public final class UserAccountDeletionRoutes {
-
-    public static final String BASE_PATH = UserAuthRoutes.BASE_PATH;
-    public static final String ME_ROUTE = UserProfileRoutes.ME_ROUTE;
-
-    private UserAccountDeletionRoutes() {
-    }
+object UserAccountDeletionRoutes {
+    const val BASE_PATH: String = UserAuthRoutes.BASE_PATH
+    const val ME_ROUTE: String = UserProfileRoutes.ME_ROUTE
 }

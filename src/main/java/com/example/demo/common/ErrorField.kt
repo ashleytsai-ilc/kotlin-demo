@@ -1,6 +1,6 @@
-package com.example.demo.common;
+package com.example.demo.common
 
-public enum ErrorField {
+enum class ErrorField(private val value: String) {
     AUTHORIZATION("authorization"),
     BODY("body"),
     CREDENTIALS("credentials"),
@@ -10,13 +10,5 @@ public enum ErrorField {
     USER("user"),
     USERNAME("username");
 
-    private final String value;
-
-    ErrorField(String value) {
-        this.value = value;
-    }
-
-    String value() {
-        return value;
-    }
+    fun value(): String = value
 }

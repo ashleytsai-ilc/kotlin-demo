@@ -1,4 +1,7 @@
-package com.example.demo.user.auth.dto;
+package com.example.demo.user.auth.dto
 
-public record TokenPairResponse(String accessToken, String refreshToken) {
-}
+@JvmRecord
+data class TokenPairResponse(
+    val accessToken: String,
+    val refreshToken: String,
+)
