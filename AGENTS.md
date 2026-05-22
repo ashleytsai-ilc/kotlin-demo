@@ -54,6 +54,17 @@
 - token 類 response key 應使用 `access_token` 這類 `snake_case` 命名，不使用 `accessToken`。
 - 若有未使用的變數、函式等均需移除，避免出現程式碼雜訊。
 
+## 資安設計與實作注意事項
+
+- 設計 API、資料存取與驗證流程時，必須主動檢查常見資安風險，不要只依賴事後 review。
+- 涉及 SQL、JPQL、native query 或動態查詢時，使用 parameter binding、Spring Data repository 方法、Criteria API 或同等安全機制；不得將 request input、JWT claim、header、path variable、query parameter 或 body 欄位直接串接進查詢字串。
+- 若 native SQL 必須動態組合 table、column、constraint 或 sort key，來源必須是程式內部常數、enum 或白名單 mapping，不得直接使用外部輸入。
+- 認證與授權邏輯必須在 service/API 邊界明確表達；不要讓 controller、filter、repository 各自隱含不同判斷。
+- JWT、refresh token、password、secret、authorization header 等敏感資料不得寫入 log、錯誤訊息、測試 snapshot 或回應 body。
+- 使用者輸入在進入業務邏輯前應做格式、長度與必要欄位驗證；錯誤回應仍需使用既有 error catalog，不要直接暴露內部例外或 SQL/框架細節。
+- 任何防重複、防競態或一次性使用語義，應依部署模型與一致性需求選擇合適機制；單一 process 內可使用 mutex、singleflight 或 in-memory lock 降低重複工作，多 instance 或安全關鍵流程則需搭配資料庫唯一約束、atomic update/insert、transaction、distributed lock 或其他共享一致性機制。不得只依賴非原子式的 application 層先查再寫。
+- 新增外部 URL、檔案路徑、命令執行、反序列化或任意 redirect 類功能時，必須先提出風險與防護設計，再開始實作。
+
 ## 測試指南
 
 - 測試透過 `spring-boot-starter-test` 使用 JUnit Jupiter。
