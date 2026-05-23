@@ -47,7 +47,7 @@ The system SHALL require `username` to be unique among active users.
 - **THEN** the system SHALL create the user and return `201 Created`
 
 ### Requirement: Unique optional nickname
-The system SHALL allow `nickname` to be omitted or blank, but provided nickname values MUST be unique among active users and MUST NOT exceed 30 characters.
+The system SHALL allow `nickname` to be omitted or null, but provided non-null nickname values MUST be non-blank, MUST NOT contain whitespace, MUST be unique among active users, and MUST NOT exceed 30 characters.
 
 #### Scenario: Duplicate active nickname
 - **GIVEN** an active user already has nickname `Ace`
@@ -65,14 +65,26 @@ The system SHALL allow `nickname` to be omitted or blank, but provided nickname 
 - **WHEN** another client submits a valid registration request with no nickname
 - **THEN** the system SHALL create the user and return `201 Created`
 
-#### Scenario: Blank nickname is treated as omitted
-- **GIVEN** a registration request has a blank `nickname`
+#### Scenario: Null nickname is treated as omitted
+- **GIVEN** a valid registration request has `nickname` set to null
 - **WHEN** the client submits the request
 - **THEN** the system SHALL create the user and return `201 Created`
 - **THEN** the response SHALL NOT include `nickname`
 
+#### Scenario: Blank nickname is rejected
+- **GIVEN** a registration request has a blank `nickname`
+- **WHEN** the client submits the request
+- **THEN** the system SHALL reject the request with `400 Bad Request`
+- **THEN** the error response SHALL include code `VALIDATION_ERROR`
+
+#### Scenario: Nickname containing whitespace is rejected
+- **GIVEN** a registration request has a `nickname` containing whitespace
+- **WHEN** the client submits the request
+- **THEN** the system SHALL reject the request with `400 Bad Request`
+- **THEN** the error response SHALL include code `VALIDATION_ERROR`
+
 ### Requirement: Validate registration input
-The system SHALL validate registration input before creating a user.
+The system SHALL validate registration input before creating a user and SHALL NOT trim `username` or `nickname` values before validation. For accepted non-null `username` and `nickname` values, the accepted value SHALL equal the submitted value.
 
 #### Scenario: Missing request body
 - **GIVEN** a registration request has no body
@@ -94,6 +106,12 @@ The system SHALL validate registration input before creating a user.
 - **GIVEN** a registration request has a `username` containing characters other than letters, digits, or underscore
 - **WHEN** the client submits the request
 - **THEN** the system SHALL reject the request with `400 Bad Request`
+
+#### Scenario: Username containing whitespace is rejected
+- **GIVEN** a registration request has a `username` containing whitespace
+- **WHEN** the client submits the request
+- **THEN** the system SHALL reject the request with `400 Bad Request`
+- **THEN** the error response SHALL include code `VALIDATION_ERROR`
 
 #### Scenario: Username is too short
 - **GIVEN** a registration request has a `username` shorter than 8 characters
