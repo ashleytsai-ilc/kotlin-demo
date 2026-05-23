@@ -32,6 +32,9 @@ rules:
     - 細項內容使用繁體中文撰寫
   specs:
     - Use Given/When/Then format for scenarios
+    - 以英文撰寫
   design:
     - Include sequence diagrams for complex flows
     - 細項內容使用繁體中文撰寫
+  tasks:
+    - 以英文撰寫

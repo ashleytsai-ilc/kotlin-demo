@@ -7,6 +7,7 @@ import com.example.demo.auth.jwt.JwtTokenType
 import com.example.demo.auth.revocation.RevokedTokenRepository
 import com.example.demo.common.ApiErrorCatalog
 import com.example.demo.common.ApiErrorKey
+import com.example.demo.common.ErrorField
 import com.example.demo.user.account.UserAccount
 import com.example.demo.user.account.UserRepository
 import com.example.demo.user.auth.UserAuthRoutes
@@ -108,11 +109,11 @@ class UserAuthApiTest @Autowired constructor(
     }
 
     @Test
-    fun acceptsOmittedAndBlankNickname() {
+    fun acceptsOmittedAndNullNickname() {
         mockMvc.perform(
             post(REGISTER_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(helper.registrationJson("alice_001", null, PASSWORD))
+                .content("""{"username":"alice_001","password":"$PASSWORD"}""")
         )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.nickname").doesNotExist())
@@ -120,22 +121,92 @@ class UserAuthApiTest @Autowired constructor(
         mockMvc.perform(
             post(REGISTER_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(helper.registrationJson("bob_0001", "   ", PASSWORD))
+                .content(helper.registrationJson("bob_0001", null, PASSWORD))
         )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.nickname").doesNotExist())
     }
 
     @Test
+    fun rejectsBlankNickname() {
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("alice_001", "   ", PASSWORD),
+            ErrorField.NICKNAME,
+            NICKNAME_INVALID_MESSAGE,
+        )
+    }
+
+    @Test
+    fun rejectsNicknameWithWhitespace() {
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("alice_001", " Ace", PASSWORD),
+            ErrorField.NICKNAME,
+            NICKNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("bob_0001", "Ace ", PASSWORD),
+            ErrorField.NICKNAME,
+            NICKNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("chris_01", "A ce", PASSWORD),
+            ErrorField.NICKNAME,
+            NICKNAME_INVALID_MESSAGE,
+        )
+    }
+
+    @Test
+    fun rejectsUsernameWithWhitespace() {
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson(" alice_001", "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("bob_0001 ", "Bee", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("chris 01", "Cee", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+    }
+
+    @Test
     fun validatesRegistrationInput() {
         helper.assertBadRegistrationRequestWithoutBody()
-        helper.assertBadRegistrationRequest(helper.registrationJson(null, "Ace", PASSWORD))
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson(null, "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_REQUIRED_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("", "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_REQUIRED_MESSAGE,
+        )
         helper.assertBadRegistrationRequest(helper.registrationJson("alice_001", "Ace", null))
-        helper.assertBadRegistrationRequest(helper.registrationJson("alice-001", "Ace", PASSWORD))
-        helper.assertBadRegistrationRequest(helper.registrationJson("short", "Ace", PASSWORD))
-        helper.assertBadRegistrationRequest(helper.registrationJson("alice_001_longer", "Ace", PASSWORD))
-        helper.assertBadRegistrationRequest(
-            helper.registrationJson("alice_001", "1234567890123456789012345678901", PASSWORD)
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("alice-001", "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("short", "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("alice_001_longer", "Ace", PASSWORD),
+            ErrorField.USERNAME,
+            USERNAME_INVALID_MESSAGE,
+        )
+        assertBadRegistrationRequestDetail(
+            helper.registrationJson("alice_001", "1234567890123456789012345678901", PASSWORD),
+            ErrorField.NICKNAME,
+            NICKNAME_INVALID_MESSAGE,
         )
         helper.assertBadRegistrationRequest(helper.registrationJson("alice_001", "Ace", "password1!"))
     }
@@ -500,6 +571,19 @@ class UserAuthApiTest @Autowired constructor(
         fun protectedEndpoint(): Map<String, String> = mapOf("status" to "ok")
     }
 
+    private fun assertBadRegistrationRequestDetail(body: String, field: ErrorField, message: String) {
+        mockMvc.perform(
+            post(REGISTER_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value(ApiErrorCatalog.code(ApiErrorKey.REGISTRATION_VALIDATION)))
+            .andExpect(jsonPath("$.message").value(ApiErrorCatalog.message(ApiErrorKey.REGISTRATION_VALIDATION)))
+            .andExpect(jsonPath("$.details[0].field").value(field.value()))
+            .andExpect(jsonPath("$.details[0].message").value(message))
+    }
+
     companion object {
         private val REGISTER_PATH: String = UserAuthRoutes.REGISTER_PATH
         private val LOGIN_PATH: String = UserAuthRoutes.LOGIN_PATH
@@ -511,5 +595,10 @@ class UserAuthApiTest @Autowired constructor(
         private const val INVALID_TOKEN = "invalid-token"
         private const val UNKNOWN_USER_ID = "missing-user"
         private const val ULID_PATTERN = "[0-9A-HJKMNP-TV-Z]{26}"
+        private const val USERNAME_REQUIRED_MESSAGE = "Username is required."
+        private const val USERNAME_INVALID_MESSAGE =
+            "Username must be 8 to 15 characters and contain only letters, digits, and underscore."
+        private const val NICKNAME_INVALID_MESSAGE =
+            "Nickname must not be blank, contain whitespace, or exceed 30 characters."
     }
 }
